@@ -26,7 +26,7 @@ class RoutingSession(Session):
     def __init__(self, engines, *args, **kwargs):
         super(RoutingSession, self).__init__(*args, **kwargs)
         self.engines = engines
-        self.slave_engines = [e for role, e in engines.iteritems()
+        self.slave_engines = [e for role, e in engines.items()
                               if role != 'master']
         assert self.slave_engines, ValueError('DB slave config is wrong!')
         self._id = self.gen_id()
@@ -66,7 +66,7 @@ class RoutingSession(Session):
         # pylint: disable=E0712
         except gevent.Timeout:
             # pylint: enable=E0712
-            close_connections(self.engines.itervalues(), current_transactions)
+            close_connections(iter(self.engines.values()), current_transactions)
             raise
 
 
@@ -81,7 +81,7 @@ class ModelMeta(DeclarativeMeta):
     def __new__(self, name, bases, attrs):
         cls = DeclarativeMeta.__new__(self, name, bases, attrs)
 
-        from core import CacheMixinBase
+        from .core import CacheMixinBase
         for base in bases:
             if issubclass(base, CacheMixinBase) and hasattr(cls, "_hook"):
                 cls._hook.add(cls)
@@ -179,7 +179,7 @@ DB_SETTINGS = {
         """
         if not settings.DB_SETTINGS:
             raise ValueError('DB_SETTINGS is empty, check it')
-        for db, db_configs in settings.DB_SETTINGS.iteritems():
+        for db, db_configs in settings.DB_SETTINGS.items():
             self.add_session(db, db_configs)
 
     def get_session(self, name):
@@ -200,7 +200,7 @@ DB_SETTINGS = {
     @classmethod
     def _make_session(cls, db, config):
         urls = config['urls']
-        for name, url in urls.iteritems():
+        for name, url in urls.items():
             assert url, "Url configured not properly for %s:%s" % (db, name)
         pool_size = config.get('pool_size', 10)
         max_overflow = config.get('max_overflow', 1)
@@ -211,17 +211,17 @@ DB_SETTINGS = {
                                     max_overflow=max_overflow,
                                     pool_recycle=pool_recycle,
                                     execution_options={'role': role})
-            for role, dsn in urls.iteritems()
+            for role, dsn in urls.items()
         }
         return make_session(engines, info={"name": db})
 
     def close_sessions(self, should_close_connection=False):
         dbsessions = self.session_map
-        for dbsession in dbsessions.itervalues():
+        for dbsession in dbsessions.values():
             if should_close_connection:
                 session = dbsession()
                 if session.transaction is not None:
-                    close_connections(session.engines.itervalues(),
+                    close_connections(iter(session.engines.values()),
                                       session.transaction._iterate_parents())
             try:
                 dbsession.remove()

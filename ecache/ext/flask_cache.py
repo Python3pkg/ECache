@@ -134,7 +134,7 @@ class Cache(object):
             if len(kwargs) > 1:
                 raise TypeError(
                     'filter accept only one attribute for filtering')
-            key, value = kwargs.items()[0]
+            key, value = list(kwargs.items())[0]
             if key not in self._columns():
                 raise TypeError(
                     '%s does not have an attribute %s' % (self, key))
@@ -180,7 +180,7 @@ class Cache(object):
 
     @memoize
     def _cache_key(self, pk='all', **kwargs):
-        q_filter = ''.join('%s=%s' % (k, v) for k, v in kwargs.items()) \
+        q_filter = ''.join('%s=%s' % (k, v) for k, v in list(kwargs.items())) \
             or self.pk
         return "%s.%s[%s]" % (self.model.__table__, q_filter, pk)
 

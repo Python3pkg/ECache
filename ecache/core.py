@@ -9,6 +9,7 @@ from sqlalchemy.orm.util import identity_key
 from sqlalchemy.orm import attributes
 
 from ecache.hook import EventHook
+import collections
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +93,7 @@ class CacheMixinBase(object):
         :param callback: func to callback
         :param raise_exc: whether to raise exception if occur, default to false
         """
-        assert callable(callback), 'callback should be callable!'
+        assert isinstance(callback, collections.Callable), 'callback should be callable!'
         cls._update_cache_fail_callback.add((callback, raise_exc))
 
     @classmethod

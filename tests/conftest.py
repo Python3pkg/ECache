@@ -11,7 +11,7 @@ MYSQL_SETTINGS = {
 
 engines = {
     role: create_engine(dsn, pool_size=10, max_overflow=-1, pool_recycle=1200)
-    for role, dsn in MYSQL_SETTINGS.items()
+    for role, dsn in list(MYSQL_SETTINGS.items())
 }
 engine = engines['master']
 

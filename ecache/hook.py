@@ -85,6 +85,6 @@ class EventHook(sqlalchemy_es_pub):
         if not objs:
             return
 
-        for obj, model in objs.values():
+        for obj, model in list(objs.values()):
             sg_name = "{}_{}".format(model.__tablename__, event_type)
             signal(sg_name).send(obj, model=model)
